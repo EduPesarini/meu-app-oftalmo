@@ -10,7 +10,11 @@ st.title("👁️ Oftalmologia de Excelência")
 st.subheader("Canal Exclusivo & Clube de Vantagens")
 
 # Conexão com a Planilha Google
-conn = st.connection("gsheets", type=GSheetsConnection)
+try:
+    conn = st.connection("gsheets", type=GSheetsConnection)
+except Exception as e:
+    st.error("Erro na conexão com a planilha. Verifique se as permissões foram concedidas.")
+    st.stop()
 
 # Organização por Abas no App
 tab1, tab2 = st.tabs(["📅 Solicitar Atendimento", "🎁 Indicar & Ganhar"])
@@ -35,22 +39,25 @@ with tab1:
 
     if submit:
         if nome and celular:
-            # Organizando os dados para a Aba 1 da Planilha
-            nova_linha = pd.DataFrame([{
-                "Data": str(data_pref),
-                "Preferência": periodo,
-                "Paciente": nome,
-                "Contato": celular,
-                "Canal": metodo,
-                "Indicação": indicacao,
-                "Status": "🚨 NOVO PEDIDO"
-            }])
-            
-            # Enviando para o Google Sheets
-            conn.create(data=nova_linha)
-            
-            st.success(f"Solicitação enviada! Nossa equipe falará com você via {metodo} em breve.")
-            st.balloons()
+            try:
+                # Organizando os dados para a Aba 1 da Planilha
+                nova_linha = pd.DataFrame([{
+                    "Data": str(data_pref),
+                    "Preferência": periodo,
+                    "Paciente": nome,
+                    "Contato": celular,
+                    "Canal": metodo,
+                    "Indicação": indicacao,
+                    "Status": "🚨 NOVO PEDIDO"
+                }])
+                
+                # Enviando para a aba 'Solicitacoes'
+                conn.create(worksheet="Solicitacoes", data=nova_linha)
+                
+                st.success(f"Solicitação enviada! Nossa equipe falará com você via {metodo} em breve.")
+                st.balloons()
+            except Exception as e:
+                st.error(f"Erro ao salvar na planilha: {e}")
         else:
             st.error("Por favor, preencha seu nome e celular para contato.")
 
@@ -60,9 +67,8 @@ with tab2:
     
     nome_ref = st.text_input("Digite seu nome para gerar o link:")
     if nome_ref:
-        # Gera o link que preenche o campo de indicação automaticamente no app do amigo
-        # Substitua pelo seu link real do Streamlit após o deploy
-        app_url = "https://meu-app-oftalmo.streamlit.app" 
+        # Pega a URL atual do app automaticamente
+        app_url = "https://meu-app-oftalmo.streamlit.app" # Substitua pelo seu link real se souber
         link_personalizado = f"{app_url}/?ref={nome_ref.replace(' ', '%20')}"
         
         st.info("Copie o link abaixo e envie para seus amigos no WhatsApp:")
