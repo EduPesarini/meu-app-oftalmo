@@ -1,22 +1,30 @@
 import streamlit as st
-from datetime import time
+from datetime import datetime
 
-# Define o título do aplicativo
-st.title('Agendamento Oftalmológico')
+# Configuração da página para um visual mais profissional
+st.set_page_config(page_title="Consultório Oftalmológico", page_icon="👁️")
 
-# Cria um seletor de data para o usuário escolher o dia da consulta
-data_selecionada = st.date_input('Selecione a data da consulta')
+# Estilo personalizado (Skill #Legendas Elegantes)
+st.title("👁️ Agendamento de Consultas")
+st.markdown("""
+### Bem-vindo ao seu cuidado ocular de excelência.
+*Agende sua consulta de forma rápida e segura. Escolha abaixo o melhor momento para cuidarmos da sua visão.*
+""")
 
-# Cria uma lista de horários de 30 em 30 minutos das 08:00 às 18:00
-horarios = []
-for hora in range(8, 18):
-    horarios.append(time(hora, 0))
-    horarios.append(time(hora, 30))
+st.divider()
 
-# Cria um seletor para o usuário escolher o horário
-horario_selecionado = st.selectbox('Selecione o horário', horarios)
+# Lógica de seleção
+data = st.date_input("Selecione a data da consulta", min_value=datetime.today())
+horario = st.selectbox("Escolha o horário disponível (Intervalos de 30min)", 
+                      ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30"])
 
-# Cria o botão de confirmação
-if st.button('Confirmar Agendamento'):
-    # Exibe uma mensagem de sucesso com os dados escolhidos
-    st.success(f'Agendamento confirmado para o dia {data_selecionada} às {horario_selecionado.strftime("%H:%M")}.')
+nome = st.text_input("Nome completo do paciente")
+
+if st.button("Confirmar Agendamento"):
+    if nome:
+        st.success(f"Solicitação enviada com sucesso para {nome} no dia {data} às {horario}!")
+        st.balloons()
+    else:
+        st.warning("Por favor, insira o nome do paciente para continuar.")
+
+st.sidebar.info("📍 Localização: [Seu Endereço Aqui]\n\n📞 Contato: (XX) XXXX-XXXX")
